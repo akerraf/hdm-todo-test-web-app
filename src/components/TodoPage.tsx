@@ -10,7 +10,7 @@ import { Task } from '../index';
 const TodoPage = () => {
   const api = useFetch();
   const [tasks, setTasks] = useState<Task[]>([]);
-
+  const [search, setSearch] = useState("");
   const handleFetchTasks = async () => setTasks(await api.get('/tasks'));
   
 
@@ -64,12 +64,16 @@ const TodoPage = () => {
   return (
     <Container>
       <Box display="flex" justifyContent="center" mt={5}>
-        <Typography variant="h2">HDM Todo List</Typography>
+        <Typography variant="h2">Abdelouakil Kerraf - HDM Todo List</Typography>
       </Box>
+      <Typography variant="h6" align="center" mt={2}>
+        Nombre de tâches : {tasks.length}
+      </Typography>
 
+      
       <Box justifyContent="center" mt={5} flexDirection="column">
         {
-          tasks.map((task) => (
+          tasks.filter((task) => task.name.toLowerCase().includes(search.toLowerCase())).map((task) => (
             <Box display="flex" justifyContent="center" alignItems="center" mt={2} gap={1} width="100%">
               <TextField size="small" value={editedTasks[task.id] || task.name} fullWidth sx={{ maxWidth: 350 }} onChange={(e) => setEditedTasks({ ...editedTasks, [task.id]: e.target.value })}/>
               <Box>
@@ -93,6 +97,15 @@ const TodoPage = () => {
             sx={{ maxWidth: 350 }}
           />
           <Button variant="outlined" onClick={()=>handleCreateTask()}>Ajouter une tâche</Button>
+        </Box>
+        <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
+          <TextField
+            label="Rechercher une tâche"
+            variant="outlined"
+            fullWidth
+            sx={{ maxWidth: 350, margin: "auto", mt: 2 }}
+            onChange={(e) => setSearch(e.target.value)}
+          />
         </Box>
       </Box>
     </Container>
