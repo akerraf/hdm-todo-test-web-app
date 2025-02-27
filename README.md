@@ -5,7 +5,7 @@
 This document describes the Frontend portion of the HDM Todo List application project.
 
 ## Setup
-1. Clone the repository: `git clone https://github.com/ton-utilisateur/hdm-todo-test-web-app.git`
+1. Clone the repository: `git clone https://github.com/akerraf/hdm-todo-test-web-app.git`
 2. Navigate to the project folder: `cd hdm-todo-test-web-app`
 3. Install dependencies: `yarn install`
 4. Run the app: `yarn start`
