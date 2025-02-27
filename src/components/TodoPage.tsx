@@ -12,13 +12,47 @@ const TodoPage = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const handleFetchTasks = async () => setTasks(await api.get('/tasks'));
+  
+
+  const [newTask, setNewTask] = useState("");
+
+  const handleCreateTask = async () => {
+    if (!newTask.trim()) return;
+    try {
+      await api.post("/tasks", { name: newTask });
+      setNewTask(""); // Réinitialiser le champ après ajout
+      await handleFetchTasks(); // Recharger les tâches après ajout
+    } catch (error) {
+      console.error("Erreur lors de l'ajout de la tâche", error);
+    }
+  };
+
+
+  
 
   const handleDelete = async (id: number) => {
-    // @todo IMPLEMENT HERE : DELETE THE TASK & REFRESH ALL THE TASKS, DON'T FORGET TO ATTACH THE FUNCTION TO THE APPROPRIATE BUTTON
-  }
+    try {
+      await api.delete(`/tasks/${id}`);
+      await handleFetchTasks(); // Recharge les tâches après suppression
+      console.log('Tache supprimée');
+    } catch (error) {
+      console.error("Erreur lors de la suppression de la tâche", error);
+    }
+  };
+  
+  const [editedTasks, setEditedTasks] = useState<{ [key: number]: string }>({});
 
-  const handleSave = async () => {
+  const handleSave = async (id: number) => {
     // @todo IMPLEMENT HERE : SAVE THE TASK & REFRESH ALL THE TASKS, DON'T FORGET TO ATTACH THE FUNCTION TO THE APPROPRIATE BUTTON
+    if (editedTasks[id]?.trim() === "") return;
+    try {
+      await api.patch(`/tasks/${id}`, { name: editedTasks[id] });
+      setEditedTasks({ ...editedTasks, [id]: "" }); // Réinitialiser le champ après modification
+      await handleFetchTasks(); // Recharger les tâches
+    } catch (error) {
+      console.error("Erreur lors de la modification de la tâche", error);
+    }
+
   }
 
   useEffect(() => {
@@ -37,12 +71,12 @@ const TodoPage = () => {
         {
           tasks.map((task) => (
             <Box display="flex" justifyContent="center" alignItems="center" mt={2} gap={1} width="100%">
-              <TextField size="small" value={task.name} fullWidth sx={{ maxWidth: 350 }} />
+              <TextField size="small" value={editedTasks[task.id] || task.name} fullWidth sx={{ maxWidth: 350 }} onChange={(e) => setEditedTasks({ ...editedTasks, [task.id]: e.target.value })}/>
               <Box>
-                <IconButton color="success" disabled>
-                  <Check />
+                <IconButton color="success" onClick={() => handleSave(task.id)} disabled={!editedTasks[task.id] || editedTasks[task.id] === task.name}>
+    	            <Check />
                 </IconButton>
-                <IconButton color="error" onClick={() => {}}>
+                <IconButton color="error" onClick={() => handleDelete(task.id)}>
                   <Delete />
                 </IconButton>
               </Box>
@@ -51,7 +85,14 @@ const TodoPage = () => {
         }
 
         <Box display="flex" justifyContent="center" alignItems="center" mt={2}>
-          <Button variant="outlined" onClick={() => {}}>Ajouter une tâche</Button>
+          <TextField
+            size="small"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            placeholder="Nouvelle tâche"
+            sx={{ maxWidth: 350 }}
+          />
+          <Button variant="outlined" onClick={()=>handleCreateTask()}>Ajouter une tâche</Button>
         </Box>
       </Box>
     </Container>
